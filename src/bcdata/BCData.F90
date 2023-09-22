@@ -2672,7 +2672,6 @@ contains
     ! ------------------------------------------
 
     subroutine setBCDataFineGrid(initializationPart)
-    subroutine setBCDataFineGrid(initializationPart)
         !--------------------------------------------------------------
         ! Manual Differentiation Warning: Modifying this routine requires
         ! modifying the hand-written forward and reverse routines.
