@@ -164,7 +164,16 @@ def setAeroProblem(solver, ap, ap_vars, inputs=None, outputs=None, print_dict=Tr
 
     updatesMade = ap != solver.curAP
 
+    # These flags control printing alpha and boundary condition warnings
+    # when we update the aeroproblem.  We only want these to print when
+    # we actually switch the aeroproblem.
+    solver.setOption("printIterations", updatesMade)
+    solver.adflow.inputiteration.printbcwarnings = updatesMade
     solver.setAeroProblem(ap)
+
+    # Turn printing back on
+    solver.setOption("printIterations", True)
+    solver.adflow.inputiteration.printbcwarnings = True
 
     if inputs is not None:
         tmp = {}
@@ -227,7 +236,7 @@ class ADflowMesh(ExplicitComponent):
         return self._getTriangulatedMeshSurface(groupName=groupName)
 
     def _getTriangulatedMeshSurface(self, groupName=None, **kwargs):
-        """
+        """©
         This function returns a trianguled verision of the surface
         mesh on all processors. The intent is to use this for doing
         constraints in DVConstraints.
@@ -955,7 +964,13 @@ class ADflowFunctions(ExplicitComponent):
         ap = self.ap
 
         # re-set the AP so that we are sure state is updated
+        solver.setOption("printIterations", False)
+        solver.adflow.inputiteration.printbcwarnings = False  # Turn off extra printouts
         solver.setAeroProblem(ap)
+
+        # Reset back to true to preserve normal ADflow printout structure
+        solver.setOption("printIterations", True)
+        solver.adflow.inputiteration.printbcwarnings = True
 
         # write the solution files. Internally, this checks the
         # types of solution files specified in the options and

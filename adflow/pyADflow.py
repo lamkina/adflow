@@ -93,6 +93,12 @@ class ADFLOW(AeroSolver):
             curDir = os.path.basename(os.path.dirname(os.path.realpath(__file__)))
             self.adflow = MExt.MExt("libadflow", curDir, debug=debug)._module
 
+        # This is a flag not exposed to the user as an option that controls
+        # printing the boundary condition warnings.  This should only
+        # be used in the MPhys layer when we make multiple calls to
+        # updateBCAllLevels.
+        self.adflow.inputiteration.printbcwarnings = True
+
         libLoadTime = time.time()
 
         # Information for base class:
@@ -3285,7 +3291,15 @@ class ADFLOW(AeroSolver):
         self.mesh.setSurfaceCoordinates(meshSurfCoords)
 
     def setAeroProblem(self, aeroProblem, releaseAdjointMemory=True):
-        """Set the supplied aeroProblem to be used in ADflow"""
+        """Set the supplied aeroProblem to be used in ADflow.
+
+        Parameters
+        ----------
+        aeroProblem : AeroProblem
+            The supplied aeroproblem to be set.
+        releaseAdjointMemory : bool, optional
+            Flag to release the adjoint memory when setting a new aeroproblem, by default True
+        """
 
         ptSetName = "adflow_%s_coords" % aeroProblem.name
 
@@ -3413,9 +3427,16 @@ class ADFLOW(AeroSolver):
             self.adflow.anksolver.ank_cfl = aeroProblem.adflowData.ank_cfl
 
     def _setAeroProblemData(self, aeroProblem, firstCall=False):
+        """After an aeroProblem has been associated with self.curAP, set
+        all the updated information in ADflow.
+
+        Parameters
+        ----------
+        aeroProblem : AeroProblem
+            The current aeroProblem object.
+        firstCall : bool, optional
+            Flag that signifies this is being called for the first time, by default False
         """
-        After an aeroProblem has been associated with self.curAP, set
-        all the updated information in ADflow."""
 
         # Set any additional adflow options that may be defined in the
         # aeroproblem. While we do it we save the options that we've

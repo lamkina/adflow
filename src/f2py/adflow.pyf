@@ -1086,6 +1086,7 @@ python module libadflow
          logical :: printiterations
          logical :: printwarnings
          logical :: printnegativevolumes
+         logical :: printbcwarnings
          real(kind=realtype) ::maxl2deviationfactor
          logical :: uselinresmonitor
          logical :: usedisscontinuation
