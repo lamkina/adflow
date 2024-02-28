@@ -3,7 +3,7 @@ import inspect
 
 import numpy as np
 from adflow import ADFLOW
-from idwarp import USMesh, MultiUSMesh
+from idwarp import USMesh, MultiUSMesh, AxisymmetricMesh
 from mphys.builder import Builder
 from openmdao.api import AnalysisError, ExplicitComponent, Group, ImplicitComponent
 from mpi4py import MPI
@@ -1310,7 +1310,7 @@ class ADflowBuilder(Builder):
         scenario : str, optional
             Scenario type to configure the groups, by default "aerodynamic"
         mesh_type : str, optional
-            mesh type option. "USMesh" or  "MultiUSMesh", by default "USMesh"
+            mesh type option. "USMesh", "MultiUSMesh", or "AxiSymmMesh", by default "USMesh"
         restart_failed_analysis : bool, optional
             Whether to retry after failed analysis, by default False
         err_on_convergence_fail : bool, optional
@@ -1354,6 +1354,7 @@ class ADflowBuilder(Builder):
 
         if mesh_type == "USMesh":
             self.multi_us_mesh = False
+            self.axisymm_mesh = False
 
             if "multi_us_mesh_components" in self.mesh_options.keys():
                 raise TypeError(
@@ -1368,6 +1369,16 @@ class ADflowBuilder(Builder):
                 )
 
             self.multi_us_mesh = True
+            self.axisymm_mesh = False
+        
+        elif mesh_type == "AxiSymmMesh":
+            self.multi_us_mesh = False
+            self.axisymm_mesh = True
+
+            if "multi_us_mesh_components" in self.mesh_options.keys():
+                raise TypeError(
+                    "'multi_us_mesh_components' is only for 'MultiUSMesh' mesh_type . Please don't provide any multi_us_mesh_components dictionary for 'AxiSymmMesh' mesh_type."
+                )
 
         else:
             raise ValueError(
@@ -1442,7 +1453,10 @@ class ADflowBuilder(Builder):
         if self.multi_us_mesh:
             mesh = MultiUSMesh(self.mesh_options["gridFile"], self.mesh_options["multi_us_mesh_components"], comm=comm)
         else:
-            mesh = USMesh(options=self.mesh_options, comm=comm)
+            if self.axisymm_mesh:
+                mesh = AxisymmetricMesh(options=self.mesh_options, comm=comm)
+            else:
+                mesh = USMesh(options=self.mesh_options, comm=comm)
 
         self.solver.setMesh(mesh)
 
