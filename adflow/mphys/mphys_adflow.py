@@ -1,13 +1,13 @@
-from pprint import pprint as pp
 import inspect
+from pprint import pprint as pp
 
 import numpy as np
-from adflow import ADFLOW
-from idwarp import USMesh, MultiUSMesh, AxisymmetricMesh
+from idwarp import AxisymmetricMesh, MultiUSMesh, USMesh
 from mphys.builder import Builder
-from openmdao.api import AnalysisError, ExplicitComponent, Group, ImplicitComponent
 from mpi4py import MPI
+from openmdao.api import AnalysisError, ExplicitComponent, Group, ImplicitComponent
 
+from adflow import ADFLOW
 
 from .om_utils import get_dvs_and_cons
 
@@ -1378,7 +1378,7 @@ class ADflowBuilder(Builder):
 
             self.multi_us_mesh = True
             self.axisymm_mesh = False
-        
+
         elif mesh_type == "AxiSymmMesh":
             self.multi_us_mesh = False
             self.axisymm_mesh = True
@@ -1460,11 +1460,10 @@ class ADflowBuilder(Builder):
 
         if self.multi_us_mesh:
             mesh = MultiUSMesh(self.mesh_options["gridFile"], self.mesh_options["multi_us_mesh_components"], comm=comm)
+        elif self.axisymm_mesh:
+            mesh = AxisymmetricMesh(options=self.mesh_options, comm=comm)
         else:
-            if self.axisymm_mesh:
-                mesh = AxisymmetricMesh(options=self.mesh_options, comm=comm)
-            else:
-                mesh = USMesh(options=self.mesh_options, comm=comm)
+            mesh = USMesh(options=self.mesh_options, comm=comm)
 
         self.solver.setMesh(mesh)
 
