@@ -25,6 +25,7 @@ multi-block and overset 3D CFD solver.
    performance
    devguide
    verification
+   slices
    citation
 
 See Fortran code documentation `here <_static/doxydoc/html/index.html>`_

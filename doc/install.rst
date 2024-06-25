@@ -137,3 +137,11 @@ Then run:
 .. prompt:: bash
 
     testflo . -m "cmplx_test*"
+
+Postprocessing Build
+--------------------
+For postprocessing of ADflow slices, only the python installation is required.
+To install the python only postprocessing modules, run:
+
+.. prompt:: bash
+    pip install .[post]
