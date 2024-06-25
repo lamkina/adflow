@@ -1,6 +1,7 @@
-from setuptools import setup, find_packages
-import re
 import os
+import re
+
+from setuptools import find_packages, setup
 
 __version__ = re.findall(
     r"""__version__ = ["']+([0-9\.]*)["']+""",
@@ -38,6 +39,7 @@ setup(
         "testing": ["parameterized", "testflo", "idwarp", "pygeo", "pyspline"],
         "mphys": ["openmdao", "mphys", "idwarp"],
         "complex": ["complexify"],
+        "post": ["networkx"],
     },
     classifiers=["Operating System :: Linux", "Programming Language :: Python, Fortran"],
 )
