@@ -350,8 +350,8 @@ class ADFLOW(AeroSolver):
 
         if self.critSectMode:
             coords = self.mapVector(self.coords0, self.allFamilies, self.designFamilyGroup, includeZipper=False)
-            self.critSectZeroMask = coords[:, self.critSectIndex] == 0.0
-            self.critSectOneMask = coords[:, self.critSectIndex] == 1.0
+            self.critSectZeroMask = coords[:, self.critSectIndex] < 0.5
+            self.critSectOneMask = coords[:, self.critSectIndex] > 0.5
 
         finalInitTime = time.time()
 
