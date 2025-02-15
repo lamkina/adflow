@@ -1656,7 +1656,9 @@ class ADFLOW(AeroSolver):
                 self.adflowUserCostFunctions[f].evalFunctions(callBackFuncs)
                 key = self.adflowUserCostFunctions[f].funcName
                 value = callBackFuncs[key]
-                funcs[self.curAP.name + "_%s" % key] = value
+                full_ap_key = self.curAP.name + "_%s" % key
+                self.curAP.funcNames[key] = full_ap_key
+                funcs[full_ap_key] = value
 
         userFuncTime = time.time()
         if self.getOption("printTiming") and self.comm.rank == 0:
@@ -5933,8 +5935,13 @@ class ADFLOW(AeroSolver):
             "verifySpatial": [bool, True],
             "verifyExtra": [bool, True],
             # Function parmeters
+            "computeSepSensorKs": [bool, False],
+            "sepSensorKsRho": [float, 1000.0],
             "sepSensorOffset": [float, 0.0],
+            "sepSensorKsOffset": [float, 0.0],
             "sepSensorSharpness": [float, 10.0],
+            "sepSensorKsSharpness": [float, 25.0],
+            "sepSensorKsPhi": [float, 90.0],
             "cavSensorOffset": [float, 0.0],
             "cavSensorSharpness": [float, 10.0],
             "cavExponent": [int, 0],
@@ -6363,8 +6370,13 @@ class ADFLOW(AeroSolver):
             "verifyextra": ["adjoint", "verifyextra"],
             "usematrixfreedrdw": ["adjoint", "usematrixfreedrdw"],
             # Parameters for functions
+            "computesepsensorks": ["cost", "computesepsensorks"],
+            "sepsensorksrho": ["physics", "sepsenmaxrho"],
             "sepsensoroffset": ["cost", "sepsensoroffset"],
             "sepsensorsharpness": ["cost", "sepsensorsharpness"],
+            "sepsensorkssharpness": ["cost", "sepsensorkssharpness"],
+            "sepsensorksoffset": ["cost", "sepsensorksoffset"],
+            "sepsensorksphi": ["cost", "sepsensorksphi"],
             "cavsensoroffset": ["cost", "cavsensoroffset"],
             "cavsensorsharpness": ["cost", "cavsensorsharpness"],
             "cavexponent": ["cost", "cavexponent"],
@@ -6511,6 +6523,8 @@ class ADFLOW(AeroSolver):
             "clqdot": self.adflow.constants.costfuncclqdot,
             "cbend": self.adflow.constants.costfuncbendingcoef,
             "sepsensor": self.adflow.constants.costfuncsepsensor,
+            "sepsensorks": self.adflow.constants.costfuncsepsensorks,
+            "sepsensorksarea": self.adflow.constants.costfuncsepsensorksarea,
             "sepsensoravgx": self.adflow.constants.costfuncsepsensoravgx,
             "sepsensoravgy": self.adflow.constants.costfuncsepsensoravgy,
             "sepsensoravgz": self.adflow.constants.costfuncsepsensoravgz,
