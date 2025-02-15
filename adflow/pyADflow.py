@@ -341,17 +341,17 @@ class ADFLOW(AeroSolver):
 
         self.coords0 = self.getSurfaceCoordinates(self.allFamilies, includeZipper=False)
 
-        # Create coordinate masks for the critical section method
-        self.critSectCoord = self.getOption("criticalSectionCoord")
-        self.critSectIndex = self.getOption("criticalSectionIndex")
-        self.critSectMode = self.getOption("criticalSectionMode")
-        self.critSectZeroMask = None
-        self.critSectOneMask = None
+        # Create coordinate masks for the foil section method
+        self.foilSectCoord = self.getOption("foilSectionCoord")
+        self.foilSectIndex = self.getOption("foilSectionIndex")
+        self.foilSectMode = self.getOption("foilSectionMode")
+        self.foilSectZeroMask = None
+        self.foilSectOneMask = None
 
-        if self.critSectMode:
+        if self.foilSectMode:
             coords = self.mapVector(self.coords0, self.allFamilies, self.designFamilyGroup, includeZipper=False)
-            self.critSectZeroMask = coords[:, self.critSectIndex] < 0.5
-            self.critSectOneMask = coords[:, self.critSectIndex] > 0.5
+            self.foilSectZeroMask = coords[:, self.foilSectIndex] < 0.5
+            self.foilSectOneMask = coords[:, self.foilSectIndex] > 0.5
 
         finalInitTime = time.time()
 
@@ -3317,10 +3317,10 @@ class ADFLOW(AeroSolver):
             if ptSetName not in self.DVGeo.points:
                 coords0 = self.mapVector(self.coords0, self.allFamilies, self.designFamilyGroup, includeZipper=False)
 
-                # In critical section mode we want to collape the pointset to a single plane
-                # based on the critical section index and coordinate
-                if self.critSectMode:
-                    coords0[:, self.critSectIndex] = self.critSectCoord
+                # In foil section mode we want to collape the pointset to a single plane
+                # based on the foil section index and coordinate
+                if self.foilSectMode:
+                    coords0[:, self.foilSectIndex] = self.foilSectCoord
 
                 self.DVGeo.addPointSet(coords0, ptSetName, **self.pointSetKwargs)
 
@@ -3359,9 +3359,9 @@ class ADFLOW(AeroSolver):
             if not self.DVGeo.pointSetUpToDate(ptSetName) or aeroProblem.adflowData.disp is not None:
                 coords = self.DVGeo.update(ptSetName, config=aeroProblem.name)
 
-                if self.critSectMode:
-                    coords[self.critSectZeroMask, self.critSectIndex] = 0.0
-                    coords[self.critSectOneMask, self.critSectIndex] = 1.0
+                if self.foilSectMode:
+                    coords[self.foilSectZeroMask, self.foilSectIndex] = 0.0
+                    coords[self.foilSectOneMask, self.foilSectIndex] = 1.0
 
                 # Potentially add a fixed set of displacements to it.
                 if aeroProblem.adflowData.disp is not None:
@@ -5939,9 +5939,9 @@ class ADFLOW(AeroSolver):
             "cavSensorSharpness": [float, 10.0],
             "cavExponent": [int, 0],
             "computeCavitation": [bool, False],
-            "criticalSectionMode": [bool, False],
-            "criticalSectionIndex": [int, 1],
-            "criticalSectionCoord": [float, 0.0],
+            "foilSectionMode": [bool, False],
+            "foilSectionIndex": [int, 1],
+            "foilSectionCoord": [float, 0.0],
         }
 
         return defOpts
@@ -6404,9 +6404,9 @@ class ADFLOW(AeroSolver):
             "useexternaldynamicmesh",
             "printalloptions",
             "printintro",
-            "criticalsectionmode",
-            "criticalsectioncoord",
-            "criticalsectionindex",
+            "foilsectionmode",
+            "foilsectioncoord",
+            "foilsectionindex",
         }
 
         # Deprecated options that may be in old scripts and should not be used.
