@@ -350,8 +350,19 @@ class ADFLOW(AeroSolver):
 
         if self.foilSectMode:
             coords = self.mapVector(self.coords0, self.allFamilies, self.designFamilyGroup, includeZipper=False)
-            self.foilSectZeroMask = coords[:, self.foilSectIndex] < 0.5
-            self.foilSectOneMask = coords[:, self.foilSectIndex] > 0.5
+
+            # find min/max values to compute the threshold
+            local_min = numpy.min(coords[:, self.foilSectIndex])
+            local_max = numpy.max(coords[:, self.foilSectIndex])
+
+            global_min = comm.allreduce(local_min, op=MPI.MIN)
+            global_max = comm.allreduce(local_max, op=MPI.MAX)
+
+            threshold = (global_max + global_min) / 2
+
+            # tag the coordinates that are above/below the threshold
+            self.foilSectZeroMask = coords[:, self.foilSectIndex] < threshold
+            self.foilSectOneMask = coords[:, self.foilSectIndex] > threshold
 
         finalInitTime = time.time()
 
