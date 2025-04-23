@@ -352,8 +352,8 @@ class ADFLOW(AeroSolver):
             coords = self.mapVector(self.coords0, self.allFamilies, self.designFamilyGroup, includeZipper=False)
 
             # find min/max values to compute the threshold
-            local_min = numpy.min(coords[:, self.foilSectIndex])
-            local_max = numpy.max(coords[:, self.foilSectIndex])
+            local_min = numpy.min(coords[:, self.foilSectIndex], initial=1e9)
+            local_max = numpy.max(coords[:, self.foilSectIndex], initial=-1e9)
 
             global_min = comm.allreduce(local_min, op=MPI.MIN)
             global_max = comm.allreduce(local_max, op=MPI.MAX)
