@@ -364,6 +364,10 @@ class ADFLOW(AeroSolver):
             self.foilSectZeroMask = coords[:, self.foilSectIndex] < threshold
             self.foilSectOneMask = coords[:, self.foilSectIndex] > threshold
 
+            # also save the foil coordinates at sect Zero and One. We will use these later to set the coordinates back to the correct values
+            self.foilSectZeroCoords = coords[self.foilSectZeroMask, self.foilSectIndex]
+            self.foilSectOneCoords = coords[self.foilSectOneMask, self.foilSectIndex]
+
         finalInitTime = time.time()
 
         if self.getOption("printTiming") and self.comm.rank == 0:
@@ -3373,8 +3377,8 @@ class ADFLOW(AeroSolver):
                 coords = self.DVGeo.update(ptSetName, config=aeroProblem.name)
 
                 if self.foilSectMode:
-                    coords[self.foilSectZeroMask, self.foilSectIndex] = self.coords0[self.foilSectZeroMask, self.foilSectIndex]
-                    coords[self.foilSectOneMask, self.foilSectIndex] = self.coords0[self.foilSectOneMask, self.foilSectIndex]
+                    coords[self.foilSectZeroMask, self.foilSectIndex] = self.foilSectZeroCoords
+                    coords[self.foilSectOneMask, self.foilSectIndex] = self.foilSectOneCoords
 
                 # Potentially add a fixed set of displacements to it.
                 if aeroProblem.adflowData.disp is not None:
